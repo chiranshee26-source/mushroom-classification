@@ -124,7 +124,7 @@ flowchart LR
 
 The project includes a small website where anyone can describe a mushroom and see what **both models** predict, along with **why**: the Decision Tree's questions step by step and the most similar mushrooms KNN found.
 
-**Live demo:** https://YOUR-USERNAME.github.io/mushroom-classification/
+**Live demo:** https://chiranshee26-source.github.io/mushroom-classification/
 
 ### Features
 - **Classify a mushroom:** 21 questions grouped by part of the mushroom (smell, cap, gills, stalk, ring, habitat). The verdict updates live as you answer.
