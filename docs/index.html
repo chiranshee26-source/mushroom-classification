@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mushroom Classifier: Edible or Poisonous?</title>
+  <meta name="description" content="Describe a mushroom and two machine-learning models (Decision Tree and K-Nearest Neighbors) predict whether it is edible or poisonous, and explain why.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M3 15a13 11 0 0 1 26 0z' fill='%23c2410c'/%3E%3Cpath d='M12 15h8l-1 13h-6z' fill='%23e7d8c3'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <a class="skip-link" href="#predict">Skip to the classifier</a>
+
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a class="brand" href="#top" aria-label="Mushroom Classifier, back to top">
+        <svg class="brand-icon" viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M3 15a13 11 0 0 1 26 0z" class="cap"/>
+          <circle cx="11" cy="9" r="1.8" class="dot"/><circle cx="19" cy="7" r="1.4" class="dot"/><circle cx="22" cy="11.5" r="1.6" class="dot"/>
+          <path d="M12 15h8l-1 13h-6z" class="stem"/>
+        </svg>
+        <span>Mushroom Classifier</span>
+      </a>
+      <nav class="nav" aria-label="Main">
+        <a href="#predict">Classify</a>
+        <a href="#how">How it works</a>
+        <a href="#results">Results</a>
+        <a href="#about">About</a>
+      </nav>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Switch between light and dark theme">
+        <svg viewBox="0 0 24 24" aria-hidden="true" class="icon-moon"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true" class="icon-sun"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="container">
+        <p class="eyebrow">Machine-learning project · UCI Mushroom Dataset</p>
+        <h1>Is this mushroom <span class="t-edible">edible</span> or <span class="t-poison">poisonous</span>?</h1>
+        <p class="lead">Describe a mushroom and two models trained on <strong id="hero-total">8,124</strong> real mushrooms, a <strong>Decision Tree</strong> and <strong>K-Nearest Neighbors</strong>, give their verdict and show you <em>why</em>.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#predict">Start classifying</a>
+          <a class="btn btn-ghost" href="#how">How does it work?</a>
+        </div>
+        <ul class="stat-row" aria-label="Project at a glance">
+          <li><span class="stat-num" id="stat-total">8,124</span><span class="stat-label">mushrooms in the dataset</span></li>
+          <li><span class="stat-num">21</span><span class="stat-label">features describe each one</span></li>
+          <li><span class="stat-num">2</span><span class="stat-label">models compared</span></li>
+          <li><span class="stat-num" id="stat-acc">100%</span><span class="stat-label">accuracy on unseen mushrooms</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="container">
+      <aside class="notice notice-danger" role="note">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 21h20L12 3z"/><path d="M12 10v5M12 18v.01"/></svg>
+        <p><strong>Learning project only.</strong> Never eat a wild mushroom because a computer said it was safe. Always ask a qualified expert.</p>
+      </aside>
+    </div>
+
+    <!-- CLASSIFIER -->
+    <section id="predict" class="section">
+      <div class="container">
+        <header class="section-head">
+          <h2>Classify a mushroom</h2>
+          <p>Pick one answer for each question. The models update <strong>as you go</strong>. Start with <strong>smell</strong>, the strongest clue. Not sure what to pick? Load a real mushroom the models have never seen.</p>
+        </header>
+
+        <div class="toolbar" role="group" aria-label="Quick actions">
+          <button class="btn btn-sm btn-edible" type="button" data-example="0">Try an edible example</button>
+          <button class="btn btn-sm btn-poison" type="button" data-example="1">Try a poisonous example</button>
+          <button class="btn btn-sm btn-ghost" type="button" data-example="any">Surprise me</button>
+          <button class="btn btn-sm btn-ghost" type="button" id="reset">Clear all</button>
+        </div>
+
+        <div class="classify-grid">
+          <form id="mushroom-form" class="form" autocomplete="off" novalidate>
+            <div class="progress" aria-live="polite">
+              <div class="progress-bar"><span id="progress-fill"></span></div>
+              <span id="progress-text">0 of 21 answered</span>
+            </div>
+            <div id="fieldsets"><!-- built by app.js from model.js --></div>
+          </form>
+
+          <aside class="result" id="result" aria-live="polite" aria-label="Prediction">
+            <div class="verdict" id="verdict" data-state="empty">
+              <div class="verdict-icon" aria-hidden="true"></div>
+              <div>
+                <p class="verdict-kicker" id="verdict-kicker">Waiting for answers</p>
+                <p class="verdict-title" id="verdict-title">Describe your mushroom</p>
+                <p class="verdict-sub" id="verdict-sub">Start with its smell. That one answer already tells the models a lot.</p>
+              </div>
+            </div>
+            <div class="truth" id="truth" hidden></div>
+
+            <div class="model-card">
+              <div class="model-head">
+                <h3>Decision Tree</h3>
+                <span class="pill" id="dt-pill">–</span>
+              </div>
+              <p class="model-hint">Asks yes/no questions, like a game of 20 Questions.</p>
+              <ol class="path" id="dt-path"></ol>
+            </div>
+
+            <div class="model-card">
+              <div class="model-head">
+                <h3>K-Nearest Neighbors <span class="muted" id="knn-k"></span></h3>
+                <span class="pill" id="knn-pill">–</span>
+              </div>
+              <p class="model-hint">Finds the most similar mushrooms it has seen before and copies their answer.</p>
+              <div id="knn-body"></div>
+            </div>
+
+            <p class="fineprint">Predictions run entirely in your browser. Nothing you enter is sent anywhere.</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- MOBILE VERDICT BAR -->
+    <a class="mobile-bar" id="mobile-bar" href="#result" data-state="empty">
+      <span class="mobile-dot" aria-hidden="true"></span>
+      <span id="mobile-text">Describe your mushroom</span>
+      <span class="mobile-link">Details ↓</span>
+    </a>
+
+    <!-- HOW IT WORKS -->
+    <section id="how" class="section section-alt">
+      <div class="container">
+        <header class="section-head">
+          <h2>How it works</h2>
+          <p>From a description to a verdict in three steps.</p>
+        </header>
+        <ol class="steps">
+          <li class="step">
+            <span class="step-num">1</span>
+            <h3>Describe</h3>
+            <p>You answer 21 questions about the mushroom: its smell, cap, gills, stalk, ring, and where it grows.</p>
+          </li>
+          <li class="step">
+            <span class="step-num">2</span>
+            <h3>Encode</h3>
+            <p>Each answer becomes a row of on/off switches (<em>one-hot encoding</em>). Models can only do maths with numbers, not words.</p>
+          </li>
+          <li class="step">
+            <span class="step-num">3</span>
+            <h3>Predict</h3>
+            <p>Both models look at the switches and answer <span class="t-edible">edible</span> or <span class="t-poison">poisonous</span>.</p>
+          </li>
+        </ol>
+
+        <div class="two-col">
+          <article class="explain-card">
+            <h3>Decision Tree: <span class="muted">"20 Questions"</span></h3>
+            <p>While training, the tree searched for the single question that best separates poisonous from edible mushrooms, then repeated that inside each group. Its first question is <strong>"Does it have no smell?"</strong>, because smell alone sorts most mushrooms correctly.</p>
+            <ul class="ticks">
+              <li>Easy to read: you can follow every step</li>
+              <li>Very fast: about 7 questions at most</li>
+            </ul>
+          </article>
+          <article class="explain-card">
+            <h3>K-Nearest Neighbors: <span class="muted">"Ask the neighbours"</span></h3>
+            <p>KNN learns no rules. It remembers every training mushroom and, for a new one, finds the most similar ones by counting how many answers differ. Then it copies their label. Mushrooms of the same species look almost identical, so this works very well.</p>
+            <ul class="ticks">
+              <li>Simple idea, with no rules to learn</li>
+              <li>Slower: it compares against every stored mushroom</li>
+            </ul>
+          </article>
+        </div>
+
+        <h3 class="sub-head">Why smell matters so much</h3>
+        <div class="odor-chart" id="odor-chart" role="img" aria-label="Bar chart of edible and poisonous mushrooms for each smell"></div>
+        <p class="caption">Almond and anise smells are always edible. Foul, fishy, spicy, pungent, creosote and musty are always poisonous. Only "no smell" is mixed, so that's where the models need more clues.</p>
+      </div>
+    </section>
+
+    <!-- RESULTS -->
+    <section id="results" class="section">
+      <div class="container">
+        <header class="section-head">
+          <h2>How good are the models?</h2>
+          <p>Both models were trained on 80% of the mushrooms and tested on the other <strong id="n-test">1,625</strong>, which they had never seen.</p>
+        </header>
+
+        <div class="metric-grid" id="metric-grid"></div>
+
+        <div class="two-col">
+          <article class="panel">
+            <h3>Confusion matrices</h3>
+            <p class="muted">Rows are the true answer, columns are the model's answer. Anything outside the diagonal is a mistake. The dangerous mistake is a <strong>poisonous</strong> mushroom predicted as <strong>edible</strong>.</p>
+            <div class="cm-row" id="cm-row"></div>
+          </article>
+          <article class="panel">
+            <h3>Most useful clues</h3>
+            <p class="muted">How much each answer helped the Decision Tree make correct splits.</p>
+            <div class="bars" id="importance"></div>
+          </article>
+        </div>
+
+        <article class="panel">
+          <h3>Verdict</h3>
+          <p id="verdict-text"></p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about" class="section section-alt">
+      <div class="container two-col">
+        <article>
+          <h2>About the project</h2>
+          <p>This is a beginner machine-learning project. The data is the <a href="https://archive.ics.uci.edu/dataset/73/mushroom" target="_blank" rel="noopener">UCI Mushroom Dataset</a>: 8,124 mushrooms from 23 species of the Agaricus and Lepiota families, each described by 22 features.</p>
+          <p>The models were built in Python with scikit-learn in <code>mushroom_classification.ipynb</code>, then exported by <code>export_model.py</code> so this page can run them in your browser.</p>
+          <h3>Limitations</h3>
+          <ul class="dots">
+            <li>It only knows 23 species. A mushroom outside the dataset can get a confident but wrong answer.</li>
+            <li>It can't use photos. Key clues like smell and spore print colour have to be observed in person.</li>
+            <li>A wrong description gives a wrong prediction.</li>
+          </ul>
+        </article>
+        <article>
+          <h3>Project files</h3>
+<pre class="tree"><code>mushroom-classification/
+├── mushroom_classification.ipynb
+├── export_model.py      → creates docs/model.js
+├── data/mushrooms.csv
+├── images/
+└── docs/         (the website)
+    ├── index.html        this page
+    ├── style.css         the design
+    ├── app.js            the logic
+    └── model.js          the trained models</code></pre>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>Mushroom Classifier · Decision Tree vs K-Nearest Neighbors · Data: UCI Machine Learning Repository</p>
+    </div>
+  </footer>
+
+  <script src="model.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
